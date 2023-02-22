@@ -1,79 +1,118 @@
 package tests;
 
-import java.util.concurrent.TimeUnit;
+import java.io.File;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import help.Helpers;
+import help.Screenshooter;
+import help.WebDriverManager;
+import pages.PageLogin;
+import pages.PageLogon;
+import pages.PageReservation;
 
 public class Tests {
 
 	// Creamos un objeto de tipo WebDriver
 	private WebDriver driver;
 
-	@Before
+	@BeforeMethod
 	public void setUp() {
 
 		System.setProperty("webdriver.chrome.driver", "Drivers/chromedriver.exe");
 
 		// Declaramos el objeto driver de tipo Chromedriver
 		driver = new ChromeDriver();
-		driver.manage().window().maximize();
+		//driver.manage().window().maximize();
 
 		driver.get("https://demo.guru99.com/test/newtours");
 
-		try {
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		Helpers helper = new Helpers();
+//		helper.sleep(4);
+
+		// Ejecutar codigo javascript
+		JavascriptExecutor javascriptexecutor = (JavascriptExecutor) driver;
+		String Googlewindows = "window.open('https://www.google.com')";
+		javascriptexecutor.executeScript(Googlewindows);
 
 	}
 
 	@Test
-	public void pruebaUno() throws InterruptedException {
+	public void pruebaUno() {
+		
+		WebDriverManager.setWindowSize(driver, "fullscreen");
 
-		driver.findElement(By.name("userName")).sendKeys("user");
-		driver.findElement(By.name("password")).sendKeys("user");
-		driver.findElement(By.name("submit")).click();
+		PageLogin pagelogin = new PageLogin(driver);
+		pagelogin.login("user", "user");
+
+		PageReservation pagereservation = new PageReservation(driver);
+		pagereservation.asserPage();
 
 		driver.findElement(By.linkText("Flights")).click();
-		try {
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// Assert.assertTrue(driver.findElement(By.xpath("/html/body/div[2]/table/tbody/tr/td[2]/table/tbody/tr[4]/td/table/tbody/tr/td[2]/table/tbody/tr[3]/td/p[1]/font/b")).getText().contains("Thank
-		// you for Loggin."));
 
 	}
 
-	@Test
-	public void pruedos() throws InterruptedException {
+//	@Test
+//	public void pruedos() {
+//
+//		PageLogon pagelogon = new PageLogon(driver);
+//		pagelogon.loginIncorrecto("34", "34");
+//		pagelogon.asserLogon();
+//
+//		Helpers helper = new Helpers();
+//		helper.sleep(4);
+//
+//	}
+//
+//	@Test
+//	public void pruebaTres() {
+//
+//		PageLogin pagelogin = new PageLogin(driver);
+//		pagelogin.login("user", "user");
+//
+//		PageReservation pagereservation = new PageReservation(driver);
+//
+//		driver.findElement(By.linkText("Flights")).click();
+//
+//		Helpers helper = new Helpers();
+//		helper.sleep(20);
+//
+//		pagereservation.selectPassengers(2);
+//
+//		pagereservation.selectdepartingfrom(4);
+//
+//		pagereservation.selecttoport("San Francisco");
+//
+//		helper.sleep(6);
+//
+//	}
+//
+//	@Test
+//	public void pruebaCantidadDeCampos() {
+//
+//		PageLogin pagelogin = new PageLogin(driver);
+//		pagelogin.verifyFields("user", "user");
+//
+//	}
 
-		driver.findElement(By.name("userName")).sendKeys("perro");
-		driver.findElement(By.name("password")).sendKeys("perro");
-		driver.findElement(By.name("submit")).click();
+	@AfterMethod
+	public void tearDown(ITestResult result) {
 
-		driver.findElement(By.linkText("Flights")).click();
-		try {
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (!result.isSuccess()) {
+
+			Screenshooter.takeScreenshot("Error", driver);
+
 		}
-
-		// Assert.assertTrue(driver.findElement(By.xpath("/html/body/div[2]/table/tbody/tr/td[2]/table/tbody/tr[4]/td/table/tbody/tr/td[2]/table/tbody/tr[3]/td/p[1]/font/b")).getText().contains("Thank
-		// you for Loggin."));
-
-	}
-
-	@After
-	public void tearDown() {
 
 		driver.quit();
 
